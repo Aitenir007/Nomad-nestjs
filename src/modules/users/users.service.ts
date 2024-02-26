@@ -12,4 +12,12 @@ export class UsersService extends CrudService<UserDocument> {
   async create(createUserDto) {
     return await this.userRepository.create(createUserDto);
   }
+
+  async findOneUserEmail( email:string){
+    try{
+      return await this.userRepository.findOne({email:email})
+    }catch(error){
+      return error.message;
+    }
+  }
 }
