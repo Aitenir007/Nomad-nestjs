@@ -16,9 +16,9 @@ export class AuthService {
     }
 
 
-    async validateUser(login: string, password: string): Promise<any> {
+    async validateUser(email: string, password: string): Promise<any> {
         try {
-          const user = await this.userService.findOne({ login, password });
+          const user = await this.userService.findOne({ email, password });
           if (!user) {
             return null;
           }
@@ -30,7 +30,7 @@ export class AuthService {
 
     async login(userLogin){
         try{
-            const user = await this.userService.findOneUserEmail(userLogin.login)
+            const user = await this.userService.findOneUserEmail(userLogin.email)
             if(user){
                 if(user.password === userLogin.password){
                     const {email} = userLogin;

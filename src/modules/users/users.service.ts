@@ -15,7 +15,7 @@ export class UsersService extends CrudService<UserDocument> {
 
   async findOneUserEmail( email:string){
     try{
-      return await this.userRepository.findOne({email:email})
+      return await this.userRepository.findOne({email})
     }catch(error){
       return error.message;
     }
