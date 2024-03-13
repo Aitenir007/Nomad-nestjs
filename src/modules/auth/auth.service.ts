@@ -1,49 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserDocument } from '../database/models/user.model';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { LoginUserDto } from './dto';
+import { UsersService } from '../users/users.service';
+import { UserDocument } from '../database/models/user.model';
+import { CreateUserDto, LoginUserDto } from './dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private readonly userService:UsersService,
-        private jwtServise: JwtService
-        ){}
-    async signup(userDate:CreateUserDto):Promise<UserDocument>{
-        return await this.userService.create(userDate);
+  constructor(
+    private readonly usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
+  
+  async signup(userData) {
+    try {
+      return await this.usersService.createUser(userData);
+    } catch (error) {
+      return error.message;
     }
+  }
 
-
-    async validateUser(email: string, password: string): Promise<any> {
-        try {
-          const user = await this.userService.findOne({ email, password });
-          if (!user) {
-            return null;
-          }
-          return user;
-        } catch (error) {
-          return error.data;
-        }
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserDocument | string> {
+    try {
+      const user = await this.usersService.findOne({ email, password });
+      if (!user) {
+        return null;
       }
-
-    async login(userDate: LoginUserDto, user: CreateUserDto){
-        try{
-            const user = await this.userService.findOneUserEmail(userDate.email)
-            if(user){
-                if(user.password === userDate.password){
-                    const {email} = userDate;
-                    const payload = {email};
-                    return{ 
-                        access_token: this.jwtServise.sign(payload),
-                    };
-                } 
-            }
-            return "Неверные данные для входа "
-        }catch(error){
-            return error.message;
-        }
+      return user;
+    } catch (error) {
+      return error.data;
     }
+  }
+  login(userData: LoginUserDto, user: UserDocument) {
+    const { email } = userData;
+    const payload = { email, user_id: user._id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async findAllUsers() {
+    return await this.usersService.find({})
+  }
 }

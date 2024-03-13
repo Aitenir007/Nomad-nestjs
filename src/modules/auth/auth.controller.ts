@@ -1,26 +1,33 @@
-import {Controller,Post,Body} from '@nestjs/common';
+import { Controller, Post, UseGuards, Body, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateUserDto, LoginUserDto } from './dto';
 import { UserDocument } from '../database/models/user.model';
-import { CreateUserDto } from './dto/create-user.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { LoginUserDto } from './dto';
-  
-  
-@ApiTags('auth')
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+@ApiTags('Auth')
 @Controller('auth')
-  export class AuthController {
-    authService: any;
-    constructor(private readonly usersService: AuthService) {}
+export class AuthController {
+  constructor(private authService: AuthService) {}
 
-    @Post('signup')
-    async singUp(@Body() userDate: CreateUserDto):Promise<UserDocument>{
-        return await this.usersService.signup(userDate);
-    }
-
-    @Post('login')
-    async login(@Body() userLogin:LoginUserDto):Promise<UserDocument>{
-      return await this.authService.login(userLogin)
-    }
-    
+  @ApiOperation({ summary: 'Регистрация' })
+  @Post('signup')
+  async signup(@Body() userData: CreateUserDto): Promise<UserDocument> {
+    return await this.authService.signup(userData);
   }
+
+  @ApiOperation({ summary: 'Логин' })
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async login(@Body() userData: LoginUserDto, @Req() req) {
+    return this.authService.login(userData, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('all')
+  async getAllUsers() {
+    return await this.authService.findAllUsers();
+  }
+}
