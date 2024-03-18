@@ -2,9 +2,8 @@ import { Controller, Post, UseGuards, Body, Req, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, LoginUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from '../users/dto';
 import { UserDocument } from '../database/models/user.model';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,10 +23,4 @@ export class AuthController {
     return this.authService.login(userData, req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @Get('all')
-  async getAllUsers() {
-    return await this.authService.findAllUsers();
-  }
 }

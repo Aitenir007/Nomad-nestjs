@@ -1,8 +1,9 @@
+import { Module } from '@nestjs/common';
 import * as NestConfig from '@nestjs/config';
 import { MongoConfig } from './mongo.config';
 import { ConfigService } from './config.service';
 import { AuthConfig } from './auth.config';
-import { Module } from '@nestjs/common';
+
 
 @Module({
   imports: [

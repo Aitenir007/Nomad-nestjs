@@ -2,17 +2,35 @@ import {
   Controller,
   Post,
   Body,
+  Put,
+  Query,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ObjectId } from '../../helpers/types/objectid.type';
+import { UpdateUserDto } from './dto/updet-user.dto';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto) {
-    return await this.usersService.create(createUserDto);
+  @ApiOperation({ summary: 'Изменить данные юзера по айдишке юзера' })
+  @Put(':id')
+  @ApiParam({ name: 'id', type: 'string', required: true })
+  async updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Param() userId: ObjectId,
+  ) {
+    return await this.usersService.updateUserById(updateUserDto, userId);
+  }
+
+  @ApiOperation({ summary: 'Удалить данные юзера по айдишке юзера' })
+  @Delete(':id')
+  @ApiParam({ name: 'id', type: 'string', required: true })
+  async deleteUserById(@Param() userId: ObjectId) {
+    return await this.usersService.deleteUserById(userId);
   }
 }
